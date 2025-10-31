@@ -1,7 +1,7 @@
 package co.edu.uniquindio.SOLID.Controlador;
 
 import co.edu.uniquindio.SOLID.Model.Empleado;
-import co.edu.uniquindio.SOLID.Model.Minimercado;
+import co.edu.uniquindio.SOLID.Service.Fachadas.EmpresaAdminFacade;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -23,11 +23,11 @@ public class EmpleadosController implements Initializable {
     @FXML private TableColumn<Empleado, String> colEmpEstado;
 
     private ObservableList<Empleado> empleados;
-    private Minimercado minimercado = Minimercado.getInstancia();
+    private EmpresaAdminFacade empresaAdminFacade = new EmpresaAdminFacade();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        empleados = FXCollections.observableArrayList(minimercado.getEmpleados());
+    empleados = FXCollections.observableArrayList(empresaAdminFacade.obtenerEmpleados());
         
         if (cmbEmpRol != null) {
             cmbEmpRol.setItems(FXCollections.observableArrayList("CAJERO", "BODEGUERO"));
@@ -63,7 +63,7 @@ public class EmpleadosController implements Initializable {
         }
         
         try {
-            Empleado emp = minimercado.crearEmpleado(id, nombre, rol);
+            Empleado emp = empresaAdminFacade.crearEmpleado(id, nombre, rol);
             empleados.add(emp);
             if (tblEmpleados != null) tblEmpleados.refresh();
             if (txtEmpId != null) txtEmpId.clear();
@@ -81,7 +81,7 @@ public class EmpleadosController implements Initializable {
         String rol = cmbEmpRol != null ? cmbEmpRol.getValue() : null;
         if (id == null || id.trim().isEmpty()) { mostrarError("El ID es obligatorio"); return; }
         try {
-            Empleado actualizado = minimercado.actualizarEmpleado(id, nombre, rol, null);
+            Empleado actualizado = empresaAdminFacade.actualizarEmpleado(id, nombre, rol, null);
             for (int i = 0; i < empleados.size(); i++) {
                 if (empleados.get(i).getId().equals(id)) { empleados.set(i, actualizado); break; }
             }
@@ -96,7 +96,7 @@ public class EmpleadosController implements Initializable {
         String id = txtEmpId != null ? txtEmpId.getText() : null;
         if (id == null || id.trim().isEmpty()) { mostrarError("El ID es obligatorio"); return; }
         try {
-            minimercado.eliminarEmpleado(id);
+            empresaAdminFacade.eliminarEmpleado(id);
             empleados.removeIf(e -> e.getId().equals(id));
             if (tblEmpleados != null) tblEmpleados.refresh();
         } catch (IllegalArgumentException e) {
@@ -109,7 +109,7 @@ public class EmpleadosController implements Initializable {
         String id = txtEmpId != null ? txtEmpId.getText() : null;
         if (id == null || id.trim().isEmpty()) { mostrarError("El ID es obligatorio"); return; }
         try {
-            Empleado actualizado = minimercado.actualizarEmpleado(id, null, null, true);
+            Empleado actualizado = empresaAdminFacade.actualizarEmpleado(id, null, null, true);
             for (int i = 0; i < empleados.size(); i++) { if (empleados.get(i).getId().equals(id)) { empleados.set(i, actualizado); break; } }
             if (tblEmpleados != null) tblEmpleados.refresh();
         } catch (IllegalArgumentException e) { mostrarError(e.getMessage()); }
@@ -120,7 +120,7 @@ public class EmpleadosController implements Initializable {
         String id = txtEmpId != null ? txtEmpId.getText() : null;
         if (id == null || id.trim().isEmpty()) { mostrarError("El ID es obligatorio"); return; }
         try {
-            Empleado actualizado = minimercado.actualizarEmpleado(id, null, null, false);
+            Empleado actualizado = empresaAdminFacade.actualizarEmpleado(id, null, null, false);
             for (int i = 0; i < empleados.size(); i++) { if (empleados.get(i).getId().equals(id)) { empleados.set(i, actualizado); break; } }
             if (tblEmpleados != null) tblEmpleados.refresh();
         } catch (IllegalArgumentException e) { mostrarError(e.getMessage()); }
