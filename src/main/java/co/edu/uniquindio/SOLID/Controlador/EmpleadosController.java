@@ -1,6 +1,7 @@
 package co.edu.uniquindio.SOLID.Controlador;
 
-import co.edu.uniquindio.SOLID.Model.Empleado;
+import co.edu.uniquindio.SOLID.Model.DTO.EmpleadoDTO;
+import co.edu.uniquindio.SOLID.Service.Fachadas.EmpresaAdminFacade;
 import co.edu.uniquindio.SOLID.Service.Fachadas.EmpresaAdminFacade;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,18 +17,18 @@ public class EmpleadosController implements Initializable {
     @FXML private TextField txtEmpId;
     @FXML private TextField txtEmpNombre;
     @FXML private ComboBox<String> cmbEmpRol;
-    @FXML private TableView<Empleado> tblEmpleados;
-    @FXML private TableColumn<Empleado, String> colEmpId;
-    @FXML private TableColumn<Empleado, String> colEmpNombre;
-    @FXML private TableColumn<Empleado, String> colEmpRol;
-    @FXML private TableColumn<Empleado, String> colEmpEstado;
+    @FXML private TableView<EmpleadoDTO> tblEmpleados;
+    @FXML private TableColumn<EmpleadoDTO, String> colEmpId;
+    @FXML private TableColumn<EmpleadoDTO, String> colEmpNombre;
+    @FXML private TableColumn<EmpleadoDTO, String> colEmpRol;
+    @FXML private TableColumn<EmpleadoDTO, String> colEmpEstado;
 
-    private ObservableList<Empleado> empleados;
+    private ObservableList<EmpleadoDTO> empleados;
     private EmpresaAdminFacade empresaAdminFacade = new EmpresaAdminFacade();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-    empleados = FXCollections.observableArrayList(empresaAdminFacade.obtenerEmpleados());
+        empleados = FXCollections.observableArrayList(empresaAdminFacade.obtenerEmpleados());
         
         if (cmbEmpRol != null) {
             cmbEmpRol.setItems(FXCollections.observableArrayList("CAJERO", "BODEGUERO"));
@@ -36,7 +37,7 @@ public class EmpleadosController implements Initializable {
         if (tblEmpleados != null) {
             colEmpId.setCellValueFactory(cd -> new javafx.beans.property.SimpleStringProperty(cd.getValue().getId()));
             colEmpNombre.setCellValueFactory(cd -> new javafx.beans.property.SimpleStringProperty(cd.getValue().getNombre()));
-            colEmpRol.setCellValueFactory(cd -> new javafx.beans.property.SimpleStringProperty(cd.getValue().getRol().name()));
+            colEmpRol.setCellValueFactory(cd -> new javafx.beans.property.SimpleStringProperty(cd.getValue().getRol()));
             colEmpEstado.setCellValueFactory(cd -> new javafx.beans.property.SimpleStringProperty(cd.getValue().isActivo() ? "Activo" : "Inactivo"));
             tblEmpleados.setItems(empleados);
         }
@@ -47,31 +48,17 @@ public class EmpleadosController implements Initializable {
         String id = txtEmpId != null ? txtEmpId.getText() : null;
         String nombre = txtEmpNombre != null ? txtEmpNombre.getText() : null;
         String rol = cmbEmpRol != null ? cmbEmpRol.getValue() : null;
-        
-        // Validaciones de campos
-        if (id == null || id.trim().isEmpty()) {
-            mostrarError("El ID es obligatorio");
-            return;
-        }
-        if (nombre == null || nombre.trim().isEmpty()) {
-            mostrarError("El nombre es obligatorio");
-            return;
-        }
-        if (rol == null) {
-            mostrarError("El rol es obligatorio");
-            return;
-        }
-        
+        if (id == null || id.trim().isEmpty()) { mostrarError("El ID es obligatorio"); return; }
+        if (nombre == null || nombre.trim().isEmpty()) { mostrarError("El nombre es obligatorio"); return; }
+        if (rol == null) { mostrarError("El rol es obligatorio"); return; }
         try {
-            Empleado emp = empresaAdminFacade.crearEmpleado(id, nombre, rol);
+            EmpleadoDTO emp = empresaAdminFacade.crearEmpleado(new EmpleadoDTO(id, nombre, rol, true));
             empleados.add(emp);
             if (tblEmpleados != null) tblEmpleados.refresh();
             if (txtEmpId != null) txtEmpId.clear();
             if (txtEmpNombre != null) txtEmpNombre.clear();
             if (cmbEmpRol != null) cmbEmpRol.setValue("CAJERO");
-        } catch (IllegalArgumentException e) {
-            mostrarError(e.getMessage());
-        }
+        } catch (IllegalArgumentException e) { mostrarError(e.getMessage()); }
     }
 
     @FXML
@@ -81,14 +68,12 @@ public class EmpleadosController implements Initializable {
         String rol = cmbEmpRol != null ? cmbEmpRol.getValue() : null;
         if (id == null || id.trim().isEmpty()) { mostrarError("El ID es obligatorio"); return; }
         try {
-            Empleado actualizado = empresaAdminFacade.actualizarEmpleado(id, nombre, rol, null);
+            EmpleadoDTO actualizado = empresaAdminFacade.actualizarEmpleado(new EmpleadoDTO(id, nombre, rol, true));
             for (int i = 0; i < empleados.size(); i++) {
                 if (empleados.get(i).getId().equals(id)) { empleados.set(i, actualizado); break; }
             }
             if (tblEmpleados != null) tblEmpleados.refresh();
-        } catch (IllegalArgumentException e) {
-            mostrarError(e.getMessage());
-        }
+        } catch (IllegalArgumentException e) { mostrarError(e.getMessage()); }
     }
 
     @FXML
@@ -99,9 +84,7 @@ public class EmpleadosController implements Initializable {
             empresaAdminFacade.eliminarEmpleado(id);
             empleados.removeIf(e -> e.getId().equals(id));
             if (tblEmpleados != null) tblEmpleados.refresh();
-        } catch (IllegalArgumentException e) {
-            mostrarError(e.getMessage());
-        }
+        } catch (IllegalArgumentException e) { mostrarError(e.getMessage()); }
     }
 
     @FXML
@@ -109,7 +92,7 @@ public class EmpleadosController implements Initializable {
         String id = txtEmpId != null ? txtEmpId.getText() : null;
         if (id == null || id.trim().isEmpty()) { mostrarError("El ID es obligatorio"); return; }
         try {
-            Empleado actualizado = empresaAdminFacade.actualizarEmpleado(id, null, null, true);
+            EmpleadoDTO actualizado = empresaAdminFacade.activarEmpleado(id);
             for (int i = 0; i < empleados.size(); i++) { if (empleados.get(i).getId().equals(id)) { empleados.set(i, actualizado); break; } }
             if (tblEmpleados != null) tblEmpleados.refresh();
         } catch (IllegalArgumentException e) { mostrarError(e.getMessage()); }
@@ -120,7 +103,7 @@ public class EmpleadosController implements Initializable {
         String id = txtEmpId != null ? txtEmpId.getText() : null;
         if (id == null || id.trim().isEmpty()) { mostrarError("El ID es obligatorio"); return; }
         try {
-            Empleado actualizado = empresaAdminFacade.actualizarEmpleado(id, null, null, false);
+            EmpleadoDTO actualizado = empresaAdminFacade.inactivarEmpleado(id);
             for (int i = 0; i < empleados.size(); i++) { if (empleados.get(i).getId().equals(id)) { empleados.set(i, actualizado); break; } }
             if (tblEmpleados != null) tblEmpleados.refresh();
         } catch (IllegalArgumentException e) { mostrarError(e.getMessage()); }

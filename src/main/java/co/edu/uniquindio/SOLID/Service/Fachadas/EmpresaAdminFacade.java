@@ -16,20 +16,28 @@ public class EmpresaAdminFacade {
 		proveedorService = new ProveedorService();
 	}
 
-	public List<Empleado> obtenerEmpleados() {
+	public List<co.edu.uniquindio.SOLID.Model.DTO.EmpleadoDTO> obtenerEmpleados() {
 		return empleadoService.obtenerEmpleados();
 	}
 
-	public Empleado crearEmpleado(String id, String nombre, String rolStr) {
-		return empleadoService.crearEmpleado(id, nombre, rolStr);
+	public co.edu.uniquindio.SOLID.Model.DTO.EmpleadoDTO crearEmpleado(co.edu.uniquindio.SOLID.Model.DTO.EmpleadoDTO dto) {
+		return empleadoService.crearEmpleado(dto);
 	}
 
-	public Empleado buscarEmpleado(String id) {
+	public co.edu.uniquindio.SOLID.Model.DTO.EmpleadoDTO buscarEmpleado(String id) {
 		return empleadoService.buscarEmpleado(id);
 	}
 
-	public Empleado actualizarEmpleado(String id, String nombre, String rolStr, Boolean activo) {
-		return empleadoService.actualizarEmpleado(id, nombre, rolStr, activo);
+	public co.edu.uniquindio.SOLID.Model.DTO.EmpleadoDTO actualizarEmpleado(co.edu.uniquindio.SOLID.Model.DTO.EmpleadoDTO dto) {
+		return empleadoService.actualizarEmpleado(dto);
+	}
+
+	public co.edu.uniquindio.SOLID.Model.DTO.EmpleadoDTO activarEmpleado(String id) {
+		return empleadoService.activarEmpleado(id);
+	}
+
+	public co.edu.uniquindio.SOLID.Model.DTO.EmpleadoDTO inactivarEmpleado(String id) {
+		return empleadoService.inactivarEmpleado(id);
 	}
 
 	public void eliminarEmpleado(String id) {
